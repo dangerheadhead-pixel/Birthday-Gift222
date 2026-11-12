@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>shehroz@nov13-core:~ | v2026.11.13 Release</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: JetBrains Mono & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Space Grotesk', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: '#03050a',
+                        surface: '#080d1a',
+                        cyber: {
+                            cyan: '#00f0ff',
+                            emerald: '#10b981',
+                            violet: '#a855f7',
+                            amber: '#f59e0b',
+                            rose: '#f43f5e',
+                            blue: '#38bdf8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --mouse-x: 50%;
+            --mouse-y: 50%;
+            --tilt-x: 0deg;
+            --tilt-y: 0deg;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #03050a;
+            color: #e2e8f0;
+            margin: 0;
+            overflow-x: hidden;
+            perspective: 1600px;
+        }
+
+        /* Subtle Perspective Cyber-Grid Overlay */
+        .cyber-grid {
+            position: fixed;
+            inset: 0;
+            background-size: 48px 48px;
+            background-image:
+                linear-gradient(to right, rgba(0, 240, 255, 0.035) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(168, 85, 247, 0.035) 1px, transparent 1px);
+            mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, #000 35%, transparent 100%);
+            -webkit-mask-image: radial-gradient(ellipse 85% 80% at 50% 50%, #000 35%, transparent 100%);
+            z-index: -3;
+            pointer-events: none;
+        }
+
+        /* Background Interactive Constellation + Matrix Canvas */
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* Foreground Fireworks & Confetti Canvas */
+        #fx-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        /* 3D Perspective Terminal Card Wrapper with Dynamic Cursor Spotlight Border */
+        .terminal-shell {
+            transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+            transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1);
+            transform-style: preserve-3d;
+            position: relative;
+            border-radius: 1.25rem;
+            padding: 1.5px;
+            background: radial-gradient(
+                650px circle at var(--mouse-x) var(--mouse-y),
+                rgba(0, 240, 255, 0.7),
+                rgba(168, 85, 247, 0.32) 30%,
+                rgba(16, 185, 129, 0.18) 55%,
+                rgba(255, 255, 255, 0.08) 80%
+            );
+            box-shadow:
+                0 35px 90px -15px rgba(0, 0, 0, 0.95),
+                0 0 60px -15px rgba(0, 240, 255, 0.22);
+        }
+
+        .terminal-inner {
+            background: rgba(8, 13, 26, 0.86);
+            backdrop-filter: blur(26px);
+            -webkit-backdrop-filter: blur(26px);
+            border-radius: calc(1.25rem - 1.5px);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Ultra-subtle CRT Scanline Texture */
+        .scanlines::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.22) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            opacity: 0.35;
+            z-index: 20;
+        }
+
+        /* Holographic Shimmer Text */
+        .holo-text {
+            background: linear-gradient(115deg, #00f0ff 0%, #38bdf8 25%, #10b981 50%, #a855f7 75%, #00f0ff 100%);
+            background-size: 220% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: holoShift 4.5s linear infinite;
+            filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.28));
+        }
+
+        @keyframes holoShift {
+            0% { background-position: 0% center; }
+            100% { background-position: 220% center; }
+        }
+
+        /* Animated Candle Flame & Smoke */
+        .candle-flame {
+            display: inline-block;
+            animation: flameDance 0.4s infinite alternate ease-in-out;
+            filter: drop-shadow(0 0 6px #f59e0b);
+        }
+        .candle-flame:nth-child(even) {
+            animation-delay: 0.18s;
+        }
+        @keyframes flameDance {
+            0% { transform: scaleY(1) rotate(-3deg); opacity: 0.9; }
+            100% { transform: scaleY(1.25) rotate(4deg); opacity: 1; }
+        }
+
+        .candle-smoke {
+            display: inline-block;
+            color: #94a3b8;
+            animation: smokeRise 1.4s ease-out forwards;
+        }
+        @keyframes smokeRise {
+            0% { transform: translateY(0) scale(1); opacity: 0.9; }
+            100% { transform: translateY(-8px) scale(1.3); opacity: 0.35; }
+        }
+
+        /* Custom Terminal Scrollbar */
+        .term-scroll::-webkit-scrollbar {
+            width: 5px;
+        }
+        .term-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .term-scroll::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 9999px;
+        }
+        .term-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 240, 255, 0.55);
+        }
+
+        /* Window Control Dot Icons */
+        .win-dot i {
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            font-size: 7px;
+            color: rgba(0, 0, 0, 0.8);
+        }
+        .win-dots:hover .win-dot i {
+            opacity: 1;
+        }
+
+        /* Entry Animation */
+        @keyframes slideReveal {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-entry {
+            animation: slideReveal 0.22s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2.5 sm:p-6 selection:bg-cyber-cyan selection:text-obsidian">
+
+    <!-- Background Layers -->
+    <div class="cyber-grid"></div>
+    <canvas id="bg-canvas"></canvas>
+    <canvas id="fx-canvas"></canvas>
+
+    <!-- SINGLE CENTERED CYBER-GLASS TERMINAL CARD -->
+    <main id="terminal-shell" class="terminal-shell w-full max-w-4xl">
+        <div class="terminal-inner scanlines flex flex-col">
+
+            <!-- 1. macOS / Hyper Window Titlebar -->
+            <header class="px-4 py-2.5 bg-white/[0.03] border-b border-white/[0.08] flex items-center justify-between select-none z-10">
+                <!-- Window Dots -->
+                <div class="win-dots flex items-center space-x-2">
+                    <button onclick="executeCommand('clear')" title="Clear Terminal" class="win-dot w-3 h-3 rounded-full bg-[#ff5f56] flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button onclick="executeCommand('wish')" title="Birthday Tribute" class="win-dot w-3 h-3 rounded-full bg-[#ffbd2e] flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-minus"></i>
+                    </button>
+                    <button onclick="launchFireworks(130)" title="Launch Fireworks" class="win-dot w-3 h-3 rounded-full bg-[#27c93f] flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+
+                <!-- Session Title -->
+                <div class="flex items-center gap-2 font-mono text-xs text-slate-300">
+                    <span class="w-2 h-2 rounded-full bg-cyber-cyan animate-ping"></span>
+                    <span class="font-bold text-white tracking-tight">shehroz@nov13-core</span>
+                    <span class="hidden sm:inline text-slate-500">— zsh — v2026.11.13</span>
+                </div>
+
+                <!-- Header Controls: Matrix Toggle & Web Audio Synth -->
+                <div class="flex items-center gap-2">
+                    <button id="matrix-btn" onclick="toggleMatrixMode()" title="Toggle Matrix Cyber-Rain" class="px-2 py-1 rounded-md bg-white/[0.04] hover:bg-cyber-emerald/15 border border-white/[0.08] hover:border-cyber-emerald/40 font-mono text-[10px] text-slate-400 hover:text-cyber-emerald transition-all cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-code"></i>
+                        <span class="hidden sm:inline">MATRIX</span>
+                    </button>
+                    <button id="audio-btn" onclick="toggleAudio()" title="Toggle Mech Keystrokes & Synth Audio" class="w-7 h-7 rounded-md bg-white/[0.04] hover:bg-cyber-cyan/15 border border-white/[0.08] hover:border-cyber-cyan/40 flex items-center justify-center text-slate-400 hover:text-cyber-cyan transition-all cursor-pointer">
+                        <i id="audio-icon" class="fa-solid fa-volume-xmark text-xs"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 2. Interactive Terminal Workspace Tabs -->
+            <nav class="px-3 sm:px-4 pt-2 bg-black/30 border-b border-white/[0.07] flex items-center gap-1.5 font-mono text-[11px] sm:text-xs overflow-x-auto select-none z-10">
+                <button id="tab-btn-shell" onclick="switchTab('shell')" class="tab-btn px-3 py-2 rounded-t-lg border-t border-x border-cyber-cyan/40 bg-cyber-cyan/10 text-cyber-cyan font-semibold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap">
+                    <i class="fa-solid fa-terminal text-[10px]"></i>
+                    <span>1: zsh // shell</span>
+                </button>
+                <button id="tab-btn-monitor" onclick="switchTab('monitor')" class="tab-btn px-3 py-2 rounded-t-lg border-t border-x border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap">
+                    <i class="fa-solid fa-microchip text-[10px]"></i>
+                    <span>2: htop // sys-monitor</span>
+                </button>
+                <button id="tab-btn-git" onclick="switchTab('git')" class="tab-btn px-3 py-2 rounded-t-lg border-t border-x border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap">
+                    <i class="fa-solid fa-code-branch text-[10px]"></i>
+                    <span>3: git // release-notes</span>
+                </button>
+            </nav>
+
+            <!-- ===================================================================== -->
+            <!-- TAB 1: ZSH // SHELL (Main Interactive CLI + Holographic Banner)       -->
+            <!-- ===================================================================== -->
+            <div id="view-shell" class="flex flex-col z-10">
+                <div id="terminal-viewport" onclick="document.getElementById('cli-input').focus()" class="term-scroll p-4 sm:p-6 font-mono text-xs sm:text-[13px] leading-relaxed space-y-4 h-[52vh] sm:h-[54vh] overflow-y-auto cursor-text">
+                    
+                    <!-- BIOS / Kernel Boot Stream -->
+                    <div id="boot-stream" class="space-y-1 text-slate-300"></div>
+
+                    <!-- Holographic Birthday Hero Card -->
+                    <section id="hero-hologram" class="hidden rounded-xl bg-gradient-to-br from-cyber-cyan/[0.07] via-cyber-violet/[0.04] to-cyber-emerald/[0.06] border border-cyber-cyan/30 p-4 sm:p-5 relative overflow-hidden">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <span class="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold tracking-widest uppercase text-cyber-cyan">
+                                <i class="fa-solid fa-bolt"></i> PRODUCTION MILESTONE • NOVEMBER 13
+                            </span>
+                            <span class="px-2 py-0.5 rounded bg-cyber-emerald/15 border border-cyber-emerald/30 text-cyber-emerald text-[10px] font-bold">
+                                ✔ ZERO BUGS • 100% LEGEND
+                            </span>
+                        </div>
+
+                        <!-- Cyberpunk ASCII Wordmark -->
+                        <pre class="hidden sm:block text-[10px] leading-[1.12] text-cyber-cyan/90 font-extrabold mb-2.5 select-none">
+ ____  _   _ _____ _   _ ____   ___ _____
+/ ___|| | | | ____| | | |  _ \ / _ \__  /
+\___ \| |_| |  _| | |_| | |_) | | | |/ / 
+ ___) |  _  | |___|  _  |  _ <| |_| / /_ 
+|____/|_| |_|_____|_| |_|_| \_\\___/____|</pre>
+
+                        <h1 class="font-display text-2xl sm:text-4xl font-bold tracking-tight holo-text">
+                            Happy Birthday, Shehroz! 🚀
+                        </h1>
+                        <p class="text-slate-300 text-xs sm:text-sm mt-1.5 leading-relaxed">
+                            To an elite <span class="text-cyber-cyan font-semibold">Software Engineer</span> and the <span class="text-cyber-emerald font-semibold">greatest elder brother</span>—may your code compile cleanly, your systems scale infinitely, and your year ahead overflow with success.
+                        </p>
+                    </section>
+
+                    <!-- Dynamic CLI Output Log -->
+                    <div id="cli-output" class="space-y-3.5"></div>
+                </div>
+
+                <!-- Quick Command Pills & Live Prompt -->
+                <div class="p-3.5 sm:p-5 bg-black/50 border-t border-white/[0.08] space-y-3.5">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-2.5 font-mono">
+                        <span class="text-slate-400 text-xs font-bold uppercase tracking-wider mr-1 select-none flex items-center gap-1.5">
+                            <i class="fa-solid fa-terminal text-cyber-cyan text-[11px]"></i> cmds:
+                        </span>
+                        <button onclick="executeCommand('wish')" class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-cyber-cyan/15 hover:bg-cyber-cyan/25 active:scale-95 text-cyber-cyan font-bold text-sm sm:text-[15px] border border-cyber-cyan/40 shadow-[0_0_16px_rgba(0,240,255,0.16)] hover:shadow-[0_0_22px_rgba(0,240,255,0.35)] transition-all cursor-pointer flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                            <span>wish</span>
+                        </button>
+                        <button onclick="executeCommand('cake')" class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-cyber-amber/15 hover:bg-cyber-amber/25 active:scale-95 text-cyber-amber font-bold text-sm sm:text-[15px] border border-cyber-amber/40 shadow-[0_0_16px_rgba(245,158,11,0.16)] hover:shadow-[0_0_22px_rgba(245,158,11,0.35)] transition-all cursor-pointer flex items-center gap-2">
+                            <i class="fa-solid fa-cake-candles text-xs"></i>
+                            <span>cake</span>
+                        </button>
+                        <button onclick="executeCommand('stack')" class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-cyber-violet/15 hover:bg-cyber-violet/25 active:scale-95 text-cyber-violet font-bold text-sm sm:text-[15px] border border-cyber-violet/40 shadow-[0_0_16px_rgba(168,85,247,0.16)] hover:shadow-[0_0_22px_rgba(168,85,247,0.35)] transition-all cursor-pointer flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-xs"></i>
+                            <span>stack</span>
+                        </button>
+                        <button onclick="executeCommand('deploy')" class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-cyber-emerald/15 hover:bg-cyber-emerald/25 active:scale-95 text-cyber-emerald font-bold text-sm sm:text-[15px] border border-cyber-emerald/40 shadow-[0_0_16px_rgba(16,185,129,0.16)] hover:shadow-[0_0_22px_rgba(16,185,129,0.35)] transition-all cursor-pointer flex items-center gap-2">
+                            <i class="fa-solid fa-rocket text-xs"></i>
+                            <span>deploy</span>
+                        </button>
+                        <button onclick="executeCommand('hack')" class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-cyber-rose/15 hover:bg-cyber-rose/25 active:scale-95 text-cyber-rose font-bold text-sm sm:text-[15px] border border-cyber-rose/40 shadow-[0_0_16px_rgba(244,63,94,0.16)] hover:shadow-[0_0_22px_rgba(244,63,94,0.35)] transition-all cursor-pointer flex items-center gap-2">
+                            <i class="fa-solid fa-user-secret text-xs"></i>
+                            <span>hack</span>
+                        </button>
+                        <button onclick="executeCommand('help')" class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-cyber-blue/15 hover:bg-cyber-blue/25 active:scale-95 text-cyber-blue font-bold text-sm sm:text-[15px] border border-cyber-blue/40 shadow-[0_0_16px_rgba(56,189,248,0.16)] hover:shadow-[0_0_22px_rgba(56,189,248,0.35)] transition-all cursor-pointer flex items-center gap-2">
+                            <i class="fa-solid fa-circle-question text-xs"></i>
+                            <span>help</span>
+                        </button>
+                        <button onclick="executeCommand('clear')" class="px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.14] active:scale-95 text-slate-300 hover:text-white font-bold text-sm sm:text-[15px] border border-white/[0.14] transition-all cursor-pointer ml-auto flex items-center gap-2">
+                            <i class="fa-solid fa-eraser text-xs"></i>
+                            <span>clear</span>
+                        </button>
+                    </div>
+
+                    <form id="cli-form" class="flex items-center font-mono text-xs sm:text-sm bg-white/[0.03] border border-white/[0.1] focus-within:border-cyber-cyan/70 rounded-xl px-3.5 py-2.5 transition-all">
+                        <h2 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-heart-pulse text-cyber-emerald"></i>
+                            <span>SHEHROZ-CORE // REAL-TIME SYSTEM TELEMETRY</span>
+                        </h2>
+                        <p class="text-slate-400 text-[11px] mt-0.5">Kernel: Darwin-Shehroz 26.11.13 ARM64-ELDER-BROTHER</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-md bg-cyber-cyan/10 border border-cyber-cyan/30 text-cyber-cyan text-[11px] font-bold">
+                        LOAD AVG: 0.00, 0.01, 0.00 (CHILL)
+                    </span>
+                </div>
+
+                <!-- Live Metric Gauges -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div class="p-3.5 rounded-xl bg-white/[0.025] border border-white/[0.08] space-y-2">
+                        <div class="flex justify-between text-[11px]">
+                            <span class="text-cyber-cyan font-semibold">CAFFEINE-TO-CODE EFFICIENCY</span>
+                            <span id="metric-caffeine" class="text-white font-bold">99.9%</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-cyber-cyan to-cyber-blue w-[99.9%] rounded-full"></div>
+                        </div>
+                        <div class="text-[10px] text-slate-500">Status: Peak architectural flow state</div>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-white/[0.025] border border-white/[0.08] space-y-2">
+                        <div class="flex justify-between text-[11px]">
+                            <span class="text-cyber-emerald font-semibold">BUG SQUASHING VELOCITY</span>
+                            <span id="metric-bugs" class="text-white font-bold">98.7%</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-cyber-emerald to-cyber-cyan w-[98.7%] rounded-full"></div>
+                        </div>
+                        <div class="text-[10px] text-slate-500">Zero unhandled exceptions in production</div>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-white/[0.025] border border-white/[0.08] space-y-2">
+                        <div class="flex justify-between text-[11px]">
+                            <span class="text-cyber-violet font-semibold">SYSTEM ARCHITECTURE MASTERY</span>
+                            <span class="text-white font-bold">100.0%</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-cyber-violet to-cyber-rose w-full rounded-full"></div>
+                        </div>
+                        <div class="text-[10px] text-slate-500">Distributed systems &amp; clean code guru</div>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-white/[0.025] border border-white/[0.08] space-y-2">
+                        <div class="flex justify-between text-[11px]">
+                            <span class="text-cyber-amber font-semibold">ELDER BROTHER RESPECT LEVEL</span>
+                            <span class="text-cyber-amber font-bold">MAX // OVERFLOW</span>
+                        </div>
+                        <div class="w-full h-2 rounded-full bg-white/[0.06] overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-cyber-amber to-cyber-rose w-full rounded-full animate-pulse"></div>
+                        </div>
+                        <div class="text-[10px] text-slate-500">SLA: 99.9999% always having my back</div>
+                    </div>
+                </div>
+
+                <!-- Live Throughput Sparkline Canvas -->
+                <div class="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-2">
+                    <div class="flex items-center justify-between text-[11px]">
+                        <span class="text-slate-300 font-semibold">LIVE BIRTHDAY CELEBRATION THROUGHPUT (ops/sec)</span>
+                        <span id="sparkline-val" class="text-cyber-cyan font-bold">1,337 ops/s</span>
+                    </div>
+                    <canvas id="sparkline-canvas" class="w-full h-20 block rounded-lg bg-black/40"></canvas>
+                </div>
+
+                <!-- Active Process Table (htop style) -->
+                <div class="rounded-xl border border-white/[0.08] overflow-hidden">
+                    <div class="bg-cyber-emerald/15 text-cyber-emerald px-3 py-1.5 text-[11px] font-bold grid grid-cols-12">
+                        <span class="col-span-2">PID</span>
+                        <span class="col-span-3">USER</span>
+                        <span class="col-span-2">CPU%</span>
+                        <span class="col-span-5">COMMAND</span>
+                    </div>
+                    <div class="divide-y divide-white/[0.05] text-[11px] text-slate-300 bg-black/25">
+                        <div class="px-3 py-1.5 grid grid-cols-12">
+                            <span class="col-span-2 text-cyber-cyan">1113</span>
+                            <span class="col-span-3">shehroz</span>
+                            <span class="col-span-2 text-cyber-emerald">42.0</span>
+                            <span class="col-span-5 truncate">/usr/bin/celebrate-birthday --nov13</span>
+                        </div>
+                        <div class="px-3 py-1.5 grid grid-cols-12">
+                            <span class="col-span-2 text-cyber-cyan">2048</span>
+                            <span class="col-span-3">shehroz</span>
+                            <span class="col-span-2 text-cyber-emerald">31.4</span>
+                            <span class="col-span-5 truncate">/opt/dev/ship-clean-architecture</span>
+                        </div>
+                        <div class="px-3 py-1.5 grid grid-cols-12">
+                            <span class="col-span-2 text-cyber-cyan">4096</span>
+                            <span class="col-span-3">root</span>
+                            <span class="col-span-2 text-cyber-amber">18.9</span>
+                            <span class="col-span-5 truncate">/daemon/best-elder-brother-service</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================================================================== -->
+            <!-- TAB 3: GIT // RELEASE-NOTES (v2026.11.13 Changelog & Diffs)           -->
+            <!-- ===================================================================== -->
+            <div id="view-git" class="hidden term-scroll p-4 sm:p-6 font-mono text-xs space-y-4 h-[62vh] sm:h-[64vh] overflow-y-auto z-10">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded bg-cyber-violet/20 border border-cyber-violet/40 text-cyber-violet font-bold text-[11px]">
+                                tag: v2026.11.13
+                            </span>
+                            <h2 class="text-sm sm:text-base font-bold text-white">Production Birthday Release Notes</h2>
+                        </div>
+                        <p class="text-slate-400 text-[11px] mt-1">Merged <code class="text-cyber-cyan">feat/birthday-release</code> into <code class="text-cyber-emerald">main</code></p>
+                    </div>
+                    <button onclick="launchFireworks(140)" class="px-3 py-1.5 rounded-lg bg-cyber-emerald/15 hover:bg-cyber-emerald/25 border border-cyber-emerald/40 text-cyber-emerald font-bold text-[11px] transition-all cursor-pointer">
+                        <i class="fa-solid fa-rocket mr-1"></i> CELEBRATE RELEASE
+                    </button>
+                </div>
+
+                <!-- Interactive Expandable Commit Entries -->
+                <div class="space-y-3">
+                    <details open class="group rounded-xl bg-white/[0.025] border border-cyber-cyan/30 p-3.5">
+                        <summary class="cursor-pointer list-none flex items-center justify-between gap-2 font-semibold text-white">
+                            <div class="flex items-center gap-2">
+                                <span class="text-cyber-amber font-bold">1113bday</span>
+                                <span>feat(milestone): unlock November 13 Birthday Edition 🎉</span>
+                            </div>
+                            <span class="text-[10px] text-cyber-cyan group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <div class="mt-3 p-3 rounded-lg bg-black/50 border border-white/[0.06] text-[11px] space-y-1 overflow-x-auto">
+                            <div class="text-slate-500">@@ -1,3 +1,4 @@ shehroz/life.config.ts</div>
+                            <div class="text-cyber-rose">- happinessLevel: "standard",</div>
+                            <div class="text-cyber-emerald">+ happinessLevel: "INFINITE_SCALE",</div>
+                            <div class="text-cyber-emerald">+ status: "Happy Birthday to the best elder brother &amp; engineer!",</div>
+                            <div class="text-cyber-emerald">+ yearAhead: "Zero bugs, massive wins, and unstoppable growth"</div>
+                        </div>
+                    </details>
+
+                    <details class="group rounded-xl bg-white/[0.025] border border-white/[0.08] p-3.5">
+                        <summary class="cursor-pointer list-none flex items-center justify-between gap-2 font-semibold text-slate-200">
+                            <div class="flex items-center gap-2">
+                                <span class="text-cyber-violet font-bold">9f84a2c</span>
+                                <span>perf(engineering): master full-stack &amp; system design</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <div class="mt-3 p-3 rounded-lg bg-black/50 border border-white/[0.06] text-[11px] space-y-1">
+                            <div class="text-cyber-emerald">+ Upgraded problem-solving throughput by 1000%</div>
+                            <div class="text-cyber-emerald">+ Mentored younger brother with patience, wisdom, and humor</div>
+                        </div>
+                    </details>
+
+                    <details class="group rounded-xl bg-white/[0.025] border border-white/[0.08] p-3.5">
+                        <summary class="cursor-pointer list-none flex items-center justify-between gap-2 font-semibold text-slate-200">
+                            <div class="flex items-center gap-2">
+                                <span class="text-cyber-cyan font-bold">0000001</span>
+                                <span>init(genesis): initial commit on November 13</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400 group-open:rotate-180 transition-transform">▼</span>
+                        </summary>
+                        <div class="mt-3 p-3 rounded-lg bg-black/50 border border-white/[0.06] text-[11px] text-slate-300">
+                            Initial deployment of Shehroz. Greatest feature ever shipped to the family repository.
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- 3. Bottom Live Telemetry Status Bar (tmux / Powerline Style) -->
+            <footer class="px-3 sm:px-4 py-1.5 bg-[#050914] border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-2 font-mono text-[10px] sm:text-[11px] select-none z-10">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <span class="px-2 py-0.5 rounded bg-cyber-cyan text-obsidian font-extrabold">NORMAL</span>
+                    <span class="text-cyber-violet font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-code-branch text-[9px]"></i> feat/birthday-release
+                    </span>
+                    <span class="hidden md:inline text-slate-500">|</span>
+                    <span class="hidden md:inline text-cyber-emerald">CPU: 12% • RAM: 4.2/32GB</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 text-slate-400">
+                    <span class="text-cyber-amber font-semibold">BUILD: NOV-13</span>
+                    <span>|</span>
+                    <span id="live-clock" class="text-slate-200 font-bold">--:--:--</span>
+                </div>
+            </footer>
+
+        </div>
+    </main>
+
+    <script>
+        // =========================================================================
+        // 1. WEB AUDIO API SYNTHESIZER (Mechanical Keystrokes + Chiptune Melody)
+        // =========================================================================
+        let audioOn = false;
+        let audioCtx = null;
+
+        function ensureAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleAudio() {
+            audioOn = !audioOn;
+            const icon = document.getElementById('audio-icon');
+            const btn = document.getElementById('audio-btn');
+            if (audioOn) {
+                ensureAudio();
+                icon.className = 'fa-solid fa-volume-high text-xs text-cyber-cyan';
+                btn.classList.add('border-cyber-cyan/50', 'bg-cyber-cyan/15');
+                playArpeggio([523.25, 659.25, 783.99, 1046.5], 0.06);
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-xs';
+                btn.classList.remove('border-cyber-cyan/50', 'bg-cyber-cyan/15');
+            }
+        }
+
+        function playKeyClick() {
+            if (!audioOn) return;
+            ensureAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(300 + Math.random() * 85, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(65, audioCtx.currentTime + 0.028);
+
+            gain.gain.setValueAtTime(0.055, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.028);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.03);
+        }
+
+        function playArpeggio(freqs = [440, 554.37, 659.25, 880], step = 0.08) {
+            if (!audioOn) return;
+            ensureAudio();
+            freqs.forEach((f, i) => {
+                const start = audioCtx.currentTime + i * step;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(f, start);
+
+                gain.gain.setValueAtTime(0.001, start);
+                gain.gain.linearRampToValueAtTime(0.085, start + 0.015);
+                gain.gain.exponentialRampToValueAtTime(0.0008, start + 0.32);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(start);
+                osc.stop(start + 0.34);
+            });
+        }
+
+        function playBirthdaySong() {
+            if (!audioOn) return;
+            ensureAudio();
+            const notes = [
+                { f: 261.63, t: 0.00, d: 0.22 }, // Hap-
+                { f: 261.63, t: 0.25, d: 0.22 }, // py
+                { f: 293.66, t: 0.50, d: 0.45 }, // Birth-
+                { f: 261.63, t: 1.00, d: 0.45 }, // day
+                { f: 349.23, t: 1.50, d: 0.45 }, // to
+                { f: 329.63, t: 2.00, d: 0.80 }, // You
+                { f: 261.63, t: 2.95, d: 0.22 }, // Hap-
+                { f: 261.63, t: 3.20, d: 0.22 }, // py
+                { f: 293.66, t: 3.45, d: 0.45 }, // Birth-
+                { f: 261.63, t: 3.95, d: 0.45 }, // day
+                { f: 392.00, t: 4.45, d: 0.45 }, // Sheh-
+                { f: 349.23, t: 4.95, d: 0.85 }  // roz!
+            ];
+            notes.forEach(n => {
+                const start = audioCtx.currentTime + n.t;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(n.f, start);
+                gain.gain.setValueAtTime(0.001, start);
+                gain.gain.linearRampToValueAtTime(0.1, start + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, start + n.d);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(start);
+                osc.stop(start + n.d + 0.02);
+            });
+        }
+
+        // =========================================================================
+        // 2. 3D PERSPECTIVE TILT, CURSOR SPOTLIGHT & LIVE TELEMETRY CLOCK
+        // =========================================================================
+        const shell = document.getElementById('terminal-shell');
+        const rootVars = document.documentElement.style;
+        const mouseState = { x: window.innerWidth / 2, y: window.innerHeight / 2, active: false };
+
+        document.addEventListener('mousemove', (e) => {
+            mouseState.x = e.clientX;
+            mouseState.y = e.clientY;
+            mouseState.active = true;
+
+            const rect = shell.getBoundingClientRect();
+            rootVars.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+            rootVars.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+
+            if (window.innerWidth >= 768) {
+                const nx = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+                const ny = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+                rootVars.setProperty('--tilt-x', `${(-ny * 2.8).toFixed(2)}deg`);
+                rootVars.setProperty('--tilt-y', `${(nx * 2.8).toFixed(2)}deg`);
+            }
+        });
+
+        document.addEventListener('mouseleave', () => {
+            mouseState.active = false;
+            rootVars.setProperty('--tilt-x', '0deg');
+            rootVars.setProperty('--tilt-y', '0deg');
+        });
+
+        function updateLiveClock() {
+            const now = new Date();
+            document.getElementById('live-clock').textContent = now.toLocaleTimeString('en-US', { hour12: false });
+        }
+        setInterval(updateLiveClock, 1000);
+        updateLiveClock();
+
+        // =========================================================================
+        // 3. TAB SWITCHING & LIVE HTOP SPARKLINE GRAPH
+        // =========================================================================
+        function switchTab(tabName) {
+            playKeyClick();
+            const views = ['shell', 'monitor', 'git'];
+            views.forEach(v => {
+                const viewEl = document.getElementById(`view-${v}`);
+                const btnEl = document.getElementById(`tab-btn-${v}`);
+                if (!viewEl || !btnEl) return;
+                if (v === tabName) {
+                    viewEl.classList.remove('hidden');
+                    btnEl.className = 'tab-btn px-3 py-2 rounded-t-lg border-t border-x border-cyber-cyan/40 bg-cyber-cyan/10 text-cyber-cyan font-semibold flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap';
+                } else {
+                    viewEl.classList.add('hidden');
+                    btnEl.className = 'tab-btn px-3 py-2 rounded-t-lg border-t border-x border-transparent text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap';
+                }
+            });
+            if (tabName === 'shell') {
+                const inputEl = document.getElementById('cli-input');
+                if (inputEl) inputEl.focus();
+            }
+        }
+
+        // Live htop Sparkline Graph
+        const sparkCanvas = document.getElementById('sparkline-canvas');
+        const sparkCtx = sparkCanvas.getContext('2d');
+        const sparkPoints = Array.from({ length: 42 }, () => 45 + Math.random() * 40);
+
+        setInterval(() => {
+            const nextVal = 55 + Math.random() * 40;
+            sparkPoints.shift();
+            sparkPoints.push(nextVal);
+            const opsEl = document.getElementById('sparkline-val');
+            if (opsEl) opsEl.textContent = `${Math.floor(1100 + nextVal * 9)} ops/s`;
+
+            if (!document.getElementById('view-monitor').classList.contains('hidden')) {
+                drawSparkline();
+            }
+        }, 650);
+
+        function drawSparkline() {
+            const w = sparkCanvas.width = sparkCanvas.clientWidth || 600;
+            const h = sparkCanvas.height = sparkCanvas.clientHeight || 80;
+            sparkCtx.clearRect(0, 0, w, h);
+
+            const stepX = w / (sparkPoints.length - 1);
+            sparkCtx.beginPath();
+            sparkPoints.forEach((val, idx) => {
+                const x = idx * stepX;
+                const y = h - (val / 100) * (h - 14) - 7;
+                if (idx === 0) sparkCtx.moveTo(x, y);
+                else sparkCtx.lineTo(x, y);
+            });
+
+            sparkCtx.strokeStyle = '#00f0ff';
+            sparkCtx.lineWidth = 2;
+            sparkCtx.shadowBlur = 8;
+            sparkCtx.shadowColor = '#00f0ff';
+            sparkCtx.stroke();
+
+            // Fill gradient beneath line
+            sparkCtx.lineTo(w, h);
+            sparkCtx.lineTo(0, h);
+            sparkCtx.closePath();
+            const grad = sparkCtx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, 'rgba(0, 240, 255, 0.25)');
+            grad.addColorStop(1, 'rgba(0, 240, 255, 0.0)');
+            sparkCtx.fillStyle = grad;
+            sparkCtx.fill();
+        }
+
+        // =========================================================================
+        // 4. CINEMATIC BIOS/KERNEL BOOT SEQUENCE
+        // =========================================================================
+        const bootStream = document.getElementById('boot-stream');
+        const heroHologram = document.getElementById('hero-hologram');
+        const cliOutput = document.getElementById('cli-output');
+        const viewport = document.getElementById('terminal-viewport');
+
+        const bootSteps = [
+            { tag: '[BIOS]', color: 'text-cyber-violet', text: 'Initializing Shehroz-Core Quantum Kernel v2026.11.13...' },
+            { tag: '[AUTH]', color: 'text-cyber-cyan', text: 'Verifying identity: Shehroz (Role: Elder Brother & Software Architect)...' },
+            { tag: '[PASS]', color: 'text-cyber-emerald', text: 'All 11.13 celebration pipelines compiled with 0 errors, 0 warnings.' }
+        ];
+
+        function runBootSequence() {
+            let i = 0;
+            function next() {
+                if (i >= bootSteps.length) {
+                    setTimeout(() => {
+                        heroHologram.classList.remove('hidden');
+                        heroHologram.classList.add('animate-entry');
+                        launchFireworks(130);
+                        printTerminal(`
+                            <div class="text-slate-400 text-xs flex items-center gap-2">
+                                <span class="text-cyber-cyan font-bold">❯</span>
+                                <span>Ready. Run <code class="text-white bg-white/10 px-1.5 py-0.5 rounded">wish</code>, <code class="text-white bg-white/10 px-1.5 py-0.5 rounded">cake</code>, <code class="text-white bg-white/10 px-1.5 py-0.5 rounded">stack</code>, <code class="text-white bg-white/10 px-1.5 py-0.5 rounded">deploy</code>, or <code class="text-white bg-white/10 px-1.5 py-0.5 rounded">hack</code>.</span>
+                            </div>
+                        `);
+                    }, 220);
+                    return;
+                }
+                const step = bootSteps[i];
+                const line = document.createElement('div');
+                line.className = 'animate-entry flex items-start gap-2';
+                line.innerHTML = `<span class="${step.color} font-bold shrink-0">${step.tag}</span><span>${step.text}</span>`;
+                bootStream.appendChild(line);
+                i++;
+                setTimeout(next, 240);
+            }
+            next();
+        }
+
+        // =========================================================================
+        // 5. NEXT-GEN INTERACTIVE CLI (Autocomplete, History, Blow Candles, CI/CD)
+        // =========================================================================
+        const COMMANDS = ['wish', 'cake', 'blow', 'stack', 'deploy', 'hack', 'matrix', 'help', 'clear'];
+        const cmdHistory = [];
+        let histIdx = -1;
+        let cakeCounter = 0;
+
+        const cliForm = document.getElementById('cli-form');
+        const cliInput = document.getElementById('cli-input');
+
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]));
+        }
+
+        function printTerminal(html) {
+            const div = document.createElement('div');
+            div.className = 'animate-entry';
+            div.innerHTML = html;
+            cliOutput.appendChild(div);
+            viewport.scrollTop = viewport.scrollHeight;
+        }
+
+        function blowOutCandles(id) {
+            const flamesEl = document.getElementById(`flames-${id}`);
+            const statusEl = document.getElementById(`cake-status-${id}`);
+            if (!flamesEl || flamesEl.dataset.blown === 'true') return;
+
+            flamesEl.dataset.blown = 'true';
+            flamesEl.innerHTML = `       <span class="candle-smoke">💨</span>   <span class="candle-smoke">💨</span>   <span class="candle-smoke">💨</span>   <span class="candle-smoke">💨</span>`;
+            if (statusEl) {
+                statusEl.innerHTML = `<span class="text-cyber-emerald font-bold">✨ Wish locked into production! May all your dreams come true, Shehroz!</span>`;
+            }
+            playArpeggio([523.25, 659.25, 783.99, 1046.5, 1318.5], 0.08);
+            launchFireworks(220);
+        }
+
+        function executeCommand(raw) {
+            const clean = raw.trim();
+            const cmd = clean.toLowerCase();
+            if (!cmd) return;
+
+            cmdHistory.push(clean);
+            histIdx = cmdHistory.length;
+
+            if (cmd === 'clear') {
+                cliOutput.innerHTML = '';
+                playKeyClick();
+                return;
+            }
+
+            // Echo command line
+            printTerminal(`
+                <div class="flex items-center gap-2 text-slate-200">
+                    <span class="text-cyber-emerald font-bold">shehroz@nov13:<span class="text-cyber-cyan">~</span>$</span>
+                    <span class="font-semibold">${escapeHtml(clean)}</span>
+                </div>
+            `);
+
+            if (cmd === 'help') {
+                playArpeggio([440, 554.37], 0.07);
+                printTerminal(`
+                    <div class="pl-3 border-l-2 border-cyber-cyan/40 space-y-1.5 text-xs text-slate-300">
+                        <div><span class="text-cyber-cyan font-bold inline-block w-24">wish</span> Display birthday JSON config &amp; brotherly tribute</div>
+                        <div><span class="text-cyber-amber font-bold inline-block w-24">cake</span> Render interactive ASCII birthday cake + synth melody</div>
+                        <div><span class="text-cyber-emerald font-bold inline-block w-24">blow</span> Blow out the birthday cake candles for fireworks</div>
+                        <div><span class="text-cyber-violet font-bold inline-block w-24">stack</span> Inspect Shehroz's engineering &amp; brother skill radar</div>
+                        <div><span class="text-cyber-blue font-bold inline-block w-24">deploy</span> Run simulated CI/CD birthday production pipeline</div>
+                        <div><span class="text-cyber-rose font-bold inline-block w-24">hack</span> Toggle Matrix Digital Rain overdrive mode</div>
+                        <div><span class="text-slate-400 font-bold inline-block w-24">clear</span> Clear terminal scrollback</div>
+                    </div>
+                `);
+            }
+            else if (cmd === 'wish') {
+                playArpeggio([523.25, 659.25, 783.99, 1046.5], 0.09);
+                launchFireworks(110);
+                printTerminal(`
+                    <div class="rounded-xl bg-white/[0.03] border border-cyber-cyan/30 p-4 space-y-3">
+                        <pre class="text-[11px] sm:text-xs leading-snug text-slate-300 overflow-x-auto">{
+  <span class="text-cyber-cyan">"target"</span>: <span class="text-cyber-emerald">"Shehroz"</span>,
+  <span class="text-cyber-cyan">"title"</span>: <span class="text-cyber-emerald">"Senior Software Engineer &amp; Best Elder Brother"</span>,
+  <span class="text-cyber-cyan">"releaseDate"</span>: <span class="text-cyber-amber">"November 13"</span>,
+  <span class="text-cyber-cyan">"uptime"</span>: <span class="text-cyber-violet">"100% Legendary"</span>
+}</pre>
+                        <p class="text-slate-200 text-xs sm:text-sm leading-relaxed border-t border-white/[0.08] pt-3">
+                            "Happy Birthday, Shehroz! Having an elder brother like you is the greatest privilege in life. Thank you for always guiding me, inspiring me with your brilliance as a software engineer, and always having my back. Wishing you a year of clean builds, epic breakthroughs, and endless happiness!"
+                        </p>
+                    </div>
+                `);
+            }
+            else if (cmd === 'cake') {
+                cakeCounter++;
+                const cid = cakeCounter;
+                playBirthdaySong();
+                launchFireworks(140);
+                printTerminal(`
+                    <div class="rounded-xl bg-cyber-amber/[0.05] border border-cyber-amber/30 p-4 space-y-2.5 inline-block max-w-full">
+                        <div class="flex items-center justify-between gap-4">
+                            <span class="text-cyber-amber text-xs font-bold">🎂 NOV-13 BIRTHDAY CAKE COMPILED</span>
+                            <button onclick="blowOutCandles(${cid})" class="px-2.5 py-1 rounded bg-cyber-amber/20 hover:bg-cyber-amber text-cyber-amber hover:text-obsidian font-bold text-[10px] transition-all cursor-pointer">
+                                💨 BLOW CANDLES
+                            </button>
+                        </div>
+<pre class="text-xs sm:text-sm leading-tight font-mono select-none overflow-x-auto">
+<span id="flames-${cid}">       <span class="candle-flame">🔥</span>   <span class="candle-flame">🔥</span>   <span class="candle-flame">🔥</span>   <span class="candle-flame">🔥</span></span>
+       <span class="text-slate-300">│    │    │    │</span>
+    <span class="text-cyber-cyan">┌──┴────┴────┴────┴──┐</span>
+    <span class="text-cyber-cyan">│</span>  <span class="text-white font-bold">HAPPY BIRTHDAY!</span>   <span class="text-cyber-cyan">│</span>
+  <span class="text-cyber-violet">┌─┴────────────────────┴─┐</span>
+  <span class="text-cyber-violet">│</span>   <span class="text-cyber-emerald font-bold">SHEHROZ  •  NOV 13</span>   <span class="text-cyber-violet">│</span>
+  <span class="text-cyber-violet">└────────────────────────┘</span>
+</pre>
+                        <div id="cake-status-${cid}" class="text-[11px] text-slate-400">
+                            Make a wish and click <span class="text-cyber-amber font-semibold">BLOW CANDLES</span> or type <code class="text-white">blow</code>!
+                        </div>
+                    </div>
+                `);
+            }
+            else if (cmd === 'blow') {
+                if (cakeCounter > 0) {
+                    blowOutCandles(cakeCounter);
+                } else {
+                    executeCommand('cake');
+                }
+            }
+            else if (cmd === 'stack') {
+                playArpeggio([392.00, 523.25, 659.25], 0.08);
+                printTerminal(`
+                    <div class="rounded-xl bg-cyber-violet/[0.05] border border-cyber-violet/30 p-4 space-y-2 text-xs">
+                        <div class="text-cyber-violet font-bold mb-1">⚡ SHEHROZ ENGINEERING &amp; CHARACTER BENCHMARK</div>
+                        <div>Full-Stack Architecture  <span class="text-cyber-cyan">[████████████████████]</span> 100%</div>
+                        <div>Clean Code &amp; Debugging   <span class="text-cyber-emerald">[███████████████████░]</span>  99%</div>
+                        <div>Coffee-to-Code Compiler  <span class="text-cyber-amber">[████████████████████]</span> OVERCLOCKED</div>
+                        <div>Elder Brother Mentorship <span class="text-cyber-rose">[████████████████████]</span> UNMATCHED</div>
+                    </div>
+                `);
+            }
+            else if (cmd === 'deploy') {
+                const pipeId = `pipe-${Date.now()}`;
+                printTerminal(`
+                    <div id="${pipeId}" class="rounded-xl bg-cyber-emerald/[0.04] border border-cyber-emerald/30 p-3.5 text-xs space-y-1.5">
+                        <div class="text-cyber-cyan font-bold">🚀 Triggering CI/CD Pipeline: shehroz-nov13-release...</div>
+                    </div>
+                `);
+                const stages = [
+                    { text: '✔ [1/4] build: Compiling birthday wishes & good vibes... (120ms)', color: 'text-slate-300' },
+                    { text: '✔ [2/4] test: Running 1,113 unit tests... ALL PASSED', color: 'text-slate-300' },
+                    { text: '✔ [3/4] security: Zero bugs, zero vulnerabilities found', color: 'text-cyber-emerald' },
+                    { text: '🎉 [4/4] deploy: LIVE IN PRODUCTION! Happy Birthday Shehroz!', color: 'text-cyber-amber font-bold' }
+                ];
+                stages.forEach((st, idx) => {
+                    setTimeout(() => {
+                        const container = document.getElementById(pipeId);
+                        if (container) {
+                            const row = document.createElement('div');
+                            row.className = `animate-entry ${st.color}`;
+                            row.textContent = st.text;
+                            container.appendChild(row);
+                            viewport.scrollTop = viewport.scrollHeight;
+                        }
+                        if (idx === stages.length - 1) {
+                            playArpeggio([523.25, 659.25, 783.99, 1046.5], 0.08);
+                            launchFireworks(220);
+                        }
+                    }, (idx + 1) * 320);
+                });
+            }
+            else if (cmd === 'hack' || cmd === 'matrix') {
+                toggleMatrixMode(true);
+                playArpeggio([329.63, 493.88, 659.25, 987.77], 0.07);
+                launchFireworks(160);
+                printTerminal(`
+                    <div class="rounded-xl bg-cyber-rose/10 border border-cyber-rose/40 p-3.5 text-xs space-y-1">
+                        <div class="text-cyber-rose font-bold">🔓 MATRIX CYBER-OVERDRIVE ENGAGED</div>
+                        <div class="text-slate-200">Global celebratory grid activated for <span class="text-cyber-cyan font-bold">Shehroz</span>. Click <span class="text-cyber-emerald">MATRIX</span> in the header to toggle anytime.</div>
+                    </div>
+                `);
+            }
+            else {
+                playKeyClick();
+                printTerminal(`
+                    <div class="text-cyber-rose text-xs">
+                        zsh: command not found: <span class="underline">${escapeHtml(clean)}</span> — try <span class="text-cyber-cyan">wish</span>, <span class="text-cyber-amber">cake</span>, <span class="text-cyber-violet">stack</span>, <span class="text-cyber-emerald">deploy</span>, or <span class="text-white">help</span>.
+                    </div>
+                `);
+            }
+        }
+
+        if (cliForm) {
+            cliForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (cliInput) {
+                    const val = cliInput.value;
+                    cliInput.value = '';
+                    executeCommand(val);
+                }
+            });
+        }
+
+        if (cliInput) {
+            cliInput.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (histIdx > 0) {
+                        histIdx--;
+                        cliInput.value = cmdHistory[histIdx];
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (histIdx < cmdHistory.length - 1) {
+                        histIdx++;
+                        cliInput.value = cmdHistory[histIdx];
+                    } else {
+                        histIdx = cmdHistory.length;
+                        cliInput.value = '';
+                    }
+                } else if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const partial = cliInput.value.trim().toLowerCase();
+                    if (partial) {
+                        const match = COMMANDS.find(c => c.startsWith(partial));
+                        if (match) cliInput.value = match;
+                    }
+                } else if (e.key.length === 1) {
+                    playKeyClick();
+                }
+            });
+        }
+
+        // =========================================================================
+        // 6. INTERACTIVE PARTICLE CONSTELLATION + MATRIX DIGITAL RAIN CANVAS
+        // =========================================================================
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        let matrixEnabled = false;
+        let matrixDrops = [];
+        let nodes = [];
+
+        function initBgEntities() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+
+            // Constellation Nodes
+            const nodeCount = Math.min(75, Math.floor((bgCanvas.width * bgCanvas.height) / 18000));
+            const hexTags = ['0x1113', 'NOV13', 'SHEHROZ', '0xFF', '1010', 'SYNC', 'ACK'];
+            nodes = Array.from({ length: nodeCount }, (_, idx) => ({
+                x: Math.random() * bgCanvas.width,
+                y: Math.random() * bgCanvas.height,
+                vx: (Math.random() - 0.5) * 0.55,
+                vy: (Math.random() - 0.5) * 0.55,
+                r: Math.random() * 1.8 + 1.2,
+                color: idx % 3 === 0 ? '#00f0ff' : idx % 3 === 1 ? '#a855f7' : '#10b981',
+                label: idx % 9 === 0 ? hexTags[idx % hexTags.length] : null
+            }));
+
+            // Matrix Columns
+            const cols = Math.floor(bgCanvas.width / 16);
+            matrixDrops = Array(cols).fill(1);
+        }
+
+        function toggleMatrixMode(forceOn) {
+            matrixEnabled = typeof forceOn === 'boolean' ? forceOn : !matrixEnabled;
+            const btn = document.getElementById('matrix-btn');
+            if (!btn) return;
+            if (matrixEnabled) {
+                btn.classList.add('border-cyber-emerald/60', 'bg-cyber-emerald/15', 'text-cyber-emerald');
+            } else {
+                btn.classList.remove('border-cyber-emerald/60', 'bg-cyber-emerald/15', 'text-cyber-emerald');
+            }
+        }
+
+        function animateBgCanvas() {
+            if (matrixEnabled) {
+                bgCtx.fillStyle = 'rgba(3, 5, 10, 0.12)';
+                bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+                const chars = 'SHEHROZ111301アイウエオカキクケコ<>{}[]';
+                bgCtx.font = '14px "JetBrains Mono", monospace';
+                for (let i = 0; i < matrixDrops.length; i++) {
+                    const ch = chars[Math.floor(Math.random() * chars.length)];
+                    bgCtx.fillStyle = i % 3 === 0 ? 'rgba(16, 185, 129, 0.55)' : 'rgba(0, 240, 255, 0.45)';
+                    bgCtx.fillText(ch, i * 16, matrixDrops[i] * 16);
+                    if (matrixDrops[i] * 16 > bgCanvas.height && Math.random() > 0.975) {
+                        matrixDrops[i] = 0;
+                    }
+                    matrixDrops[i]++;
+                }
+            } else {
+                bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            }
+
+            // Draw Interactive Node-Link Constellation
+            for (let i = 0; i < nodes.length; i++) {
+                const n = nodes[i];
+                n.x += n.vx;
+                n.y += n.vy;
+
+                if (n.x < 0 || n.x > bgCanvas.width) n.vx *= -1;
+                if (n.y < 0 || n.y > bgCanvas.height) n.vy *= -1;
+
+                // Draw Node
+                bgCtx.beginPath();
+                bgCtx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                bgCtx.fillStyle = n.color;
+                bgCtx.fill();
+
+                if (n.label) {
+                    bgCtx.font = '9px "JetBrains Mono", monospace';
+                    bgCtx.fillStyle = 'rgba(148, 163, 184, 0.35)';
+                    bgCtx.fillText(n.label, n.x + 6, n.y + 3);
+                }
+
+                // Connect nearby nodes
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const m = nodes[j];
+                    const dx = n.x - m.x;
+                    const dy = n.y - m.y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < 125) {
+                        bgCtx.beginPath();
+                        bgCtx.moveTo(n.x, n.y);
+                        bgCtx.lineTo(m.x, m.y);
+                        bgCtx.strokeStyle = `rgba(0, 240, 255, ${(1 - dist / 125) * 0.16})`;
+                        bgCtx.lineWidth = 0.8;
+                        bgCtx.stroke();
+                    }
+                }
+
+                // Connect nodes to mouse cursor with glowing beam
+                if (mouseState.active) {
+                    const mdx = n.x - mouseState.x;
+                    const mdy = n.y - mouseState.y;
+                    const mdist = Math.hypot(mdx, mdy);
+                    if (mdist < 180) {
+                        bgCtx.beginPath();
+                        bgCtx.moveTo(n.x, n.y);
+                        bgCtx.lineTo(mouseState.x, mouseState.y);
+                        bgCtx.strokeStyle = `rgba(168, 85, 247, ${(1 - mdist / 180) * 0.42})`;
+                        bgCtx.lineWidth = 1.1;
+                        bgCtx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateBgCanvas);
+        }
+
+        // =========================================================================
+        // 7. HIGH-FPS NEON FIREWORKS & CONFETTI BURST ENGINE
+        // =========================================================================
+        const fxCanvas = document.getElementById('fx-canvas');
+        const fxCtx = fxCanvas.getContext('2d');
+        let particles = [];
+        let fxLoopId = null;
+
+        function resizeAll() {
+            fxCanvas.width = window.innerWidth;
+            fxCanvas.height = window.innerHeight;
+            initBgEntities();
+        }
+        window.addEventListener('resize', resizeAll);
+        resizeAll();
+
+        const CYBER_COLORS = ['#00f0ff', '#10b981', '#a855f7', '#f59e0b', '#f43f5e', '#38bdf8'];
+
+        function launchFireworks(count = 120) {
+            const originX = fxCanvas.width * (0.25 + Math.random() * 0.5);
+            const originY = fxCanvas.height * (0.2 + Math.random() * 0.25);
+
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 9 + 2;
+                particles.push({
+                    x: originX,
+                    y: originY,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 2,
+                    size: Math.random() * 4 + 2,
+                    color: CYBER_COLORS[Math.floor(Math.random() * CYBER_COLORS.length)],
+                    alpha: 1,
+                    decay: Math.random() * 0.015 + 0.01,
+                    gravity: 0.14
+                });
+            }
+            if (!fxLoopId) renderFx();
+        }
+
+        function renderFx() {
+            fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.vx *= 0.975;
+                p.vy = p.vy * 0.975 + p.gravity;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.decay;
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                fxCtx.save();
+                fxCtx.globalAlpha = p.alpha;
+                fxCtx.fillStyle = p.color;
+                fxCtx.shadowBlur = 10;
+                fxCtx.shadowColor = p.color;
+                fxCtx.beginPath();
+                fxCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                fxCtx.fill();
+                fxCtx.restore();
+            }
+
+            if (particles.length > 0) {
+                fxLoopId = requestAnimationFrame(renderFx);
+            } else {
+                fxLoopId = null;
+            }
+        }
+
+        // Start Everything on Window Load
+        window.onload = () => {
+            animateBgCanvas();
+            runBootSequence();
+        };
+    </script>
+</body>
+</html>
